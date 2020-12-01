@@ -1,15 +1,16 @@
 """
 created on 2020/11/27 11:45
 @author:Xia Feng
-@note:calculate area of a diagram
+@note:1.calculate area of a diagram
+      2.calculate area ratio
 """
 
 import load
-import generate
+import generate_origin
 import numpy as np
 
 
-def countArea(img_arr):
+def count_area(img_arr):
     list_up = []
     list_down = []
     for col in range(len(img_arr)):
@@ -36,10 +37,12 @@ def count_area_ratio(img_name1, img_name2):
 
 
 def count_area_by_name(img_name):
-    loadfile = load.LoadData('image_data_map.csv')
-    x, f = loadfile.get_pixel_by_name(img_name)
-    arr = generate.process_pixel(x, f)
-    s = countArea(arr)
+    loadfile = load.LoadData('D:\\pythonProject\\image_data_map.csv')
+    data, dict_index = loadfile.get_pixel_data()
+    index = dict_index.get(img_name)
+    x, f = load.get_pixel_by_index(index, data)
+    arr = generate_origin.process_pixel(x, f)
+    s = count_area(arr)
     return s
 
 

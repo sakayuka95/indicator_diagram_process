@@ -11,6 +11,14 @@ import pandas as pd
 import cv2 as cv
 
 
+def get_pixel_by_index(index, data):
+    x = data['x']
+    f = data['f']
+    x1 = list(map(eval, x.iloc[index].split(',')))
+    f1 = list(map(eval, f.iloc[index].split(',')))
+    return x1, f1
+
+
 class LoadData:
 
     def __init__(self, path):
@@ -46,13 +54,8 @@ class LoadData:
         list_data = list_up + list_down
         return list_data
 
-    def get_pixel_by_name(self, img_name):
+    def get_pixel_data(self):
         data = pd.read_csv(self.filepath)
         dict_origin = data['image_name'].to_dict()
         dict_index = {value: key for key, value in dict_origin.items()}
-        index = dict_index.get(img_name)
-        x = data['x']
-        f = data['f']
-        x1 = list(map(eval, x.iloc[index].split(',')))
-        f1 = list(map(eval, f.iloc[index].split(',')))
-        return x1, f1
+        return data, dict_index
