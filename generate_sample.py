@@ -8,20 +8,13 @@ created on 2020/12/1 14:36
         2.2 delete_duplicate
         2.3 print into a txt file:a.png b.png label
       3.select val sample
-      4.data augmentation
-        4.1 from image
-        4.2 from pixel map
-        4.3 from origin(deprecated)
 """
 
 import generate_origin
 import load
-import util
 import os
 import os.path as osp
 import random
-import numpy as np
-import cv2 as cv
 from shutil import move
 
 
@@ -222,124 +215,6 @@ def select_val_sample(train_path, val_path, base_num):
             num -= 1
 
 
-def process_from_image(temp_list, save_path):
-    arr = 255 * np.ones((256, 256, 3), np.uint8)
-    for cnt in range(len(temp_list) - 1):
-        cv.line(arr, temp_list[cnt], temp_list[cnt + 1], (255, 0, 0), 1, cv.LINE_AA)
-    cv.line(arr, temp_list[-1], temp_list[0], (255, 0, 0), 1, cv.LINE_AA)
-    cv.imwrite(save_path, arr)
-
-
-def data_augmentation_from_image(img_path, base_num, base_path):
-    image_set = os.listdir(img_path)
-    for image in image_set:
-        loadfile = load.LoadData(img_path)
-        image_data = loadfile.get_data_from_image()
-        # image_data = generate.get_data_from_image(path + '\\' + image)
-        pre = image.replace('.png', '')
-        num = int(base_num + random.randint(-700, 800))
-        for k in range(num):
-            temp_data = image_data
-            temp_list = []
-            for data in temp_data:
-                temp = int(data[1] + random.randint(0, 3))
-                if random.randint(0, 1) <= 0.45:
-                    temp_list.append((data[0], temp))
-                else:
-                    temp_list.append(data)
-            save_path = osp.join(base_path, pre + '-' + str(k) + '.png')
-            process_from_image(temp_list, save_path)
-
-
-def data_augmentation_from_map(image_name_set, dict_index, pf, path):
-    # order of magnitude
-    label_num = len(image_name_set)
-    num = int((4500 + random.randint(-700, 800)) / label_num)
-    # get data source
-    for image_name in image_name_set:
-        index_image = dict_index.get(image_name)
-        if index_image is None:
-            continue
-        x, f = load.get_pixel_by_index(index_image, pf)
-        pre = image_name.replace('.png', '')
-        for k in range(num):
-            length = len(f)
-            f_add = np.empty([length, 1], dtype=int)
-            for i in range(length):
-                temp = int(f[i] + random.randint(0, 3))
-                f_add[i] = temp if random.randint(0, 1) <= 0.45 and temp <= max(f) else f[i]
-            add_path = osp.join(path, pre + '-' + str(k) + '.png')
-            generate_origin.process(x, f_add, add_path)
-
-
-# deprecated
-def augmentation_csv(filepath, data_set, num, base_path):
-    loadfile = load.LoadData(filepath)
-    file = loadfile.read_csv()
-    maxlength = len(file)
-    pre = osp.splitext(osp.basename(filepath))[0]
-    f_max = max(np.array(file)[:, 1])
-    print(pre + ' start, max_f = ' + str(f_max))
-    # split
-    cnt = 0
-    idx = 0
-    while maxlength - 200 * cnt > 0:
-        # while cnt < 5:
-        temp = file[idx:idx + 200]
-        data = np.array(temp)
-        x = data[:, 0]
-        f = data[:, 1]
-        idx += 200
-        cnt += 1
-        name = pre + '-' + str(cnt) + '.png'
-        if util.zero_data(x, f):
-            continue
-        if name in data_set:
-            # print(name)
-            for k in range(num):
-                x_add, f_add = generate_origin.normalization_each_device(x, f, f_max, True)
-                add_path = osp.join(base_path, pre + '-' + str(cnt) + '-' + str(k) + '.png')
-                generate_origin.process(x_add, f_add, add_path)
-
-
-# deprecated
-def data_augmentation_from_origin(image_name_set, base_path):
-    # order of magnitude
-    label_num = len(image_name_set)
-    num = int((4000 + random.randint(-200, 300)) / label_num)
-    # get data source
-    file_set = set()
-    for image_name in image_name_set:
-        file_set.add(image_name[0:4])
-    # select data from all data
-    filepath = 'data1'
-    fileset = os.listdir(filepath)
-    for fileName in fileset:
-        # if this data file generate images
-        if fileName[0:4] in file_set:
-            if fileName.find('.xlsx') != -1:
-                # file.enhance_excel(image_name_set)
-                print('enhance_excel')
-            elif fileName.find('.csv') != -1:
-                augmentation_csv(osp.join(filepath, fileName), image_name_set, num, base_path)
-
-
-def generate_enhance(origin_path):
-    image_path_set = os.listdir(origin_path)
-    print(origin_path + ' has ' + str(len(image_path_set)) + ' labels ')
-    loadfile = load.LoadData('D:\\pythonProject\\image_data_map.csv')
-    pf, dict_index = loadfile.get_pixel_data()
-    for label in image_path_set:
-        image_path = osp.join(origin_path, label)
-        image_name_set = os.listdir(image_path)
-        label_num = len(image_name_set)
-        print(label + ' has ' + str(label_num) + ' images ')
-        if label_num < 5300:
-            print(label + ' needs to be enhanced')
-            data_augmentation_from_map(image_name_set, dict_index, pf, image_path)
-            # data_augmentation_from_origin(image_name_set, image_path)
-
-
 if __name__ == '__main__':
     generate_contrast_plus_train('D:\\pythonProject\\image1\\test', 'D:\\pythonProject\\image2')
     # generate_contrast_minus_test('FD-1-360.png', 'D:\\pythonProject\\image1\\testset', 'D:\\pythonProject\\image2')
@@ -351,6 +226,3 @@ if __name__ == '__main__':
     #                          'D:\\pythonProject\\image2\\SimilarityDetection\\data.txt')
     # select_val_sample('image\\oilsimilarity\\generate_from_image\\train',
     #                   'image\\oilsimilarity\\generate_from_image\\val\\', 150)
-    # generate_enhance('D:\\pythonProject\\image\\images')
-    # data_augmentation_from_image('D:\\graduationproject\DataPreparation\\1119test\\data', 4500,
-    #                              'D:\\pythonProject\\image\\origin_images\\generate')

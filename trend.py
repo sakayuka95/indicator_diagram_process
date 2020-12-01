@@ -91,5 +91,5 @@ def process_in_one_image(equipment, save_path, interval):
 if __name__ == '__main__':
     # test()
     # show_pic('5', 10)
-    # generate_video('test111.mp4', '5/', 10)
-    process_in_one_image('FD-5', 'D:\\pythonProject\\history', 10000)
+    generate_video('test111.mp4', '5/', 10)
+    # process_in_one_image('FD-5', 'D:\\pythonProject\\history', 10000)

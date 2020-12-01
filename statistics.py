@@ -2,7 +2,6 @@
 created on 2020/12/1 11:10
 @author:yuka
 @note:statistics util
-
 """
 
 import numpy as np
