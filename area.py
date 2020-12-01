@@ -1,13 +1,27 @@
 """
 created on 2020/11/27 11:45
 @author:Xia Feng
-@note:1.calculate area of a diagram
-      2.calculate area ratio
+@note:1.draw pixel diagram by name
+      2.calculate area of a diagram
+      3.calculate area ratio
 """
 
 import load
-import generate_origin
 import numpy as np
+import cv2 as cv
+
+
+def draw_pixel(img, x, f):
+    for cnt in range(len(x) - 1):
+        cv.line(img, (x[cnt], f[cnt]), (x[cnt + 1], f[cnt + 1]), 0, thickness=1)
+    cv.line(img, (x[-1], f[-1]), (x[0], f[0]), 0, thickness=1)
+
+
+def process_pixel(x_new, f_new):
+    arr = np.full((256, 256), 255, np.uint8)
+    draw_pixel(arr, x_new, f_new)
+    img2 = np.flip(arr, axis=0)
+    return img2
 
 
 def count_area(img_arr):
@@ -30,20 +44,20 @@ def count_area(img_arr):
     return s
 
 
-def count_area_ratio(img_name1, img_name2):
-    s1 = count_area_by_name(img_name1)
-    s2 = count_area_by_name(img_name2)
-    return float(s1 / s2)
-
-
 def count_area_by_name(img_name):
     loadfile = load.LoadData('D:\\pythonProject\\image_data_map.csv')
     data, dict_index = loadfile.get_pixel_data()
     index = dict_index.get(img_name)
     x, f = load.get_pixel_by_index(index, data)
-    arr = generate_origin.process_pixel(x, f)
+    arr = process_pixel(x, f)
     s = count_area(arr)
     return s
+
+
+def count_area_ratio(img_name1, img_name2):
+    s1 = count_area_by_name(img_name1)
+    s2 = count_area_by_name(img_name2)
+    return float(s1 / s2)
 
 
 if __name__ == '__main__':

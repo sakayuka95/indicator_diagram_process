@@ -9,15 +9,32 @@ created on 2020/12/1 9:48
         3.2 change sample label(attached to file name)
         3.3 copy modified sample to total sample
       4.draw 2-classify test result among all model snapshots
+      5.find common error set between 2-classify test and triplet test
 """
 
-import generate_origin
 import os
 import os.path as osp
 import shutil
 from shutil import move
 import pandas as pd
 import matplotlib.pyplot as plt
+
+
+def process_result(x1, f1, x2, f2, save_path):
+    plt.rcParams['font.sans-serif'] = ['KaiTi']  # 指定默认字体
+    plt.rcParams['axes.unicode_minus'] = False
+    plt.rcParams['figure.figsize'] = (6.4, 4.8)
+    plt.rcParams['savefig.dpi'] = 100
+    # plt.ylim(min(f) - 20, max(f) + 10)
+
+    plt.plot(x1, f1, marker='o', color='red', linewidth=2.0, linestyle='--')
+    plt.plot(x2, f2, marker='>', color='blue', linewidth=2.0, linestyle='-')
+    plt.legend(['训练集', '验证集'])
+    plt.title("损失率与迭代次数的关系")
+    plt.xlabel('迭代次数')
+    plt.ylabel('损失率')
+    plt.savefig(save_path, bbox_inches='tight')
+    plt.show()
 
 
 def generate_result_from_log(txt_path, save_file):
@@ -38,7 +55,7 @@ def generate_result_from_log(txt_path, save_file):
     file.close()
     val_iter = list(range(0, 100000, 4000))
     train_iter = list(range(0, 100000, 2000))
-    generate_origin.process_result(train_iter, train_loss_list, val_iter, val_loss_list, save_file)
+    process_result(train_iter, train_loss_list, val_iter, val_loss_list, save_file)
 
 
 def get_minus_and_plus_num(image_name_set, label, error_set, path):
@@ -118,9 +135,48 @@ def draw_test_result(path, save_path):
     plt.show()
 
 
+def find_common_result(error_path_2, error_path_3):
+    # dict_data = dict()
+    # file = open('D:\\graduationproject\\ver3\\similarity\\cbir\\error.txt')
+    # for line in file:
+    #     content = line.split(' ')
+    #     image_name1 = content[0]
+    #     image_name2 = content[1]
+    #     label = content[2].replace('\n', '')
+    #     key = image_name1 + '~' + image_name2
+    #     value = label.replace('.png', '')
+    #     dict_data[key] = value
+    # file.close()
+
+    image_all_set = os.listdir(error_path_2)
+    dict_error = dict()
+    for image in image_all_set:
+        content = image.split('~')
+        image_name1 = content[0]
+        image_name2 = content[1]
+        label = content[2].replace('\n', '')
+        key = image_name1+'~'+image_name2
+        value = label.replace('.png','')
+        dict_error[key] = value
+
+    cnt = 0
+    image_set = os.listdir(error_path_3)
+    for image in image_set:
+        content = image.split('~')
+        image_name1 = content[0]
+        image_name2 = content[1]
+        label = content[2].replace('\n', '')
+        key = image_name1 + '~' + image_name2
+        error_label = dict_error.get(key, None)
+        if error_label is not None:
+            cnt += 1
+            print(key)
+    print(cnt)
+
 
 if __name__ == "__main__":
     generate_result_from_log('D:\\graduationproject\\ver3\\log3.txt', 'D:\\graduationproject\\ver3\\result3.png')
     # modify_sample('D:\\graduationproject\\ver3\compare\\1110test\\todo\\',
     #  'D:\\pythonProject\\image2\\SimilarityDetection\\all')
     # draw_test_result('D:\\graduationproject\\ver3\\compare\\test_analyse.xlsx', 'D:\\graduationproject\\ver3\\compare\\test_loss1.png')
+    # find_common_result('D:\\graduationproject\\ver3\compare\\1110test\\error', 'D:\\graduationproject\\ver3\\similarity\\cbir\\error')
