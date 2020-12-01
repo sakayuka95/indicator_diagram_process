@@ -78,6 +78,37 @@ def process_with_axis(x, f, save_path, max_f):
     plt.show()
 
 
+def normalization_each_device(x, f, f_max, is_add):
+    length = len(f)
+    x_max = max(x)
+    # f_max = max_value
+    k_x = 253 / x_max
+    k_f = 253 / f_max
+    x_new = np.empty([length, 1], dtype=int)
+    f_new = np.empty([length, 1], dtype=int)
+    for i in range(length):
+        add = random.randint(0, 1) if is_add and random.randint(0, 1) <= 0.5 else 0
+        # add = random.randint(0, 1) if is_add else 0
+        x_new[i] = int(x[i] * k_x) + 1
+        f_new[i] = int((f[i] + add) * k_f) + 1
+    return x_new, f_new
+
+
+def normalization_each_image(x, f):
+    length = len(f)
+    x_max = max(x)
+    f_max = max(f)
+    k_x = 253 / x_max
+    k_f = 253 / f_max
+    x_new = np.empty([length, 1], dtype=int)
+    f_new = np.empty([length, 1], dtype=int)
+    move_step = (max(f) + min(f)) * 0.5 * k_f - 128
+    for i in range(length):
+        x_new[i] = int(x[i] * k_x) + 1
+        f_new[i] = int(f[i] * k_f - move_step) + 1
+    return x_new, f_new
+
+
 class Generate:
 
     def __init__(self, path=None, max_x=None, max_f=None):
@@ -114,7 +145,7 @@ class Generate:
                 print(pre + '-' + str(cnt) + ':zero')
                 continue
             # normalization_max
-            x_new, f_new = self.normalization_each_image(x_array, f_array)
+            x_new, f_new = normalization_each_image(x_array, f_array)
             # normalization_100
             # x_new, f_new = self.normalization_each_device(x_array, f_array, 1000, False)
             # draw and save
@@ -152,7 +183,7 @@ class Generate:
             # normalization_max
             # x_new, f_new = self.normalization_each_image(x, f)
             # normalization_100
-            x_new, f_new = self.normalization_each_device(x, f, f_max, False)
+            x_new, f_new = normalization_each_device(x, f, f_max, False)
             # draw and save
             save_path = osp.join(base_path, pre + '-' + str(cnt) + '.png')
             process(x_new, f_new, save_path)
@@ -208,7 +239,7 @@ class Generate:
             if util.zero_data(x_array, f_array):
                 continue
             # normalization_max
-            x_new, f_new = self.normalization_each_image(x_array, f_array)
+            x_new, f_new = normalization_each_image(x_array, f_array)
             image_dict = {"image_name": pre + '-' + str(cnt) + '.png',
                           "x": ','.join(str(x_new.tolist()).replace(']', '').replace('[', '').split(',')),
                           "f": ','.join(str(f_new.tolist()).replace(']', '').replace('[', '').split(','))}
@@ -220,8 +251,6 @@ class Generate:
         maxlength = len(file)
         exception_zero = 0
         pre = osp.splitext(osp.basename(self.filepath))[0]
-        # filenames = self.filepath.split('\\')
-        # pre = filenames[len(filenames) - 1].replace('.csv', '')
         f_max = max(np.array(file)[:, 1])
         print(pre + ' start, max_f = ' + str(f_max))
         # split
@@ -244,49 +273,18 @@ class Generate:
             # normalization_max
             # x_new, f_new = self.normalization_each_image(x, f)
             # normalization_100
-            x_new, f_new = self.normalization_each_device(x, f, f_max, False)
+            x_new, f_new = normalization_each_device(x, f, f_max, False)
             image_dict = {"image_name": pre + '-' + str(cnt) + '.png',
                           "x": ','.join(str(x_new.tolist()).replace(']', '').replace('[', '').split(',')),
                           "f": ','.join(str(f_new.tolist()).replace(']', '').replace('[', '').split(','))}
             content_list.append(image_dict)
 
-    @staticmethod
-    def normalization_each_device(x, f, f_max, is_add):
-        length = len(f)
-        x_max = max(x)
-        # f_max = max_value
-        k_x = 253 / x_max
-        k_f = 253 / f_max
-        x_new = np.empty([length, 1], dtype=int)
-        f_new = np.empty([length, 1], dtype=int)
-        for i in range(length):
-            add = random.randint(0, 1) if is_add and random.randint(0, 1) <= 0.5 else 0
-            # add = random.randint(0, 1) if is_add else 0
-            x_new[i] = int(x[i] * k_x) + 1
-            f_new[i] = int((f[i] + add) * k_f) + 1
-        return x_new, f_new
-
-    @staticmethod
-    def normalization_each_image(x, f):
-        length = len(f)
-        x_max = max(x)
-        f_max = max(f)
-        k_x = 253 / x_max
-        k_f = 253 / f_max
-        x_new = np.empty([length, 1], dtype=int)
-        f_new = np.empty([length, 1], dtype=int)
-        move_step = (max(f) + min(f)) * 0.5 * k_f - 128
-        for i in range(length):
-            x_new[i] = int(x[i] * k_x) + 1
-            f_new[i] = int(f[i] * k_f - move_step) + 1
-        return x_new, f_new
 
     # deprecated
     def get_standard_excel(self, standard):
         loadfile = load.LoadData(self.filepath)
         data = loadfile.read_excel()
-        filenames = self.filepath.split('\\')
-        pre = filenames[len(filenames) - 1].replace('.xlsx', '')
+        pre = osp.splitext(osp.basename(self.filepath))[0]
         for cnt in range(len(data)):
             # skip exception
             if util.nan_data(data[cnt, 0]) | util.nan_data(data[cnt, 1]):
@@ -301,7 +299,7 @@ class Generate:
                 continue
             name = pre + '-' + str(cnt) + '.png'
             if name == standard:
-                x_standard, f_standard = self.normalization_each_image(x_array, f_array)
+                x_standard, f_standard = normalization_each_image(x_array, f_array)
                 return x_standard, f_standard
 
     # deprecated
@@ -309,8 +307,7 @@ class Generate:
         loadfile = load.LoadData(self.filepath)
         file = loadfile.read_csv()
         maxlength = len(file)
-        filenames = self.filepath.split('\\')
-        pre = filenames[len(filenames) - 1].replace('.csv', '')
+        pre = osp.splitext(osp.basename(self.filepath))[0]
         f_max = max(np.array(file)[:, 1])
         # print('standard image source is' + pre + ', max_f is ' + str(f_max))
         # split
@@ -327,15 +324,14 @@ class Generate:
             if util.zero_data(x, f):
                 continue
             if name == standard:
-                x_standard, f_standard = self.normalization_each_device(x, f, f_max, False)
+                x_standard, f_standard = normalization_each_device(x, f, f_max, False)
                 return x_standard, f_standard
 
     # deprecated
     def generate_excel_contrast(self, data_set, x_standard, f_standard):
         loadfile = load.LoadData(self.filepath)
         data = loadfile.read_excel()
-        filenames = self.filepath.split('\\')
-        pre = filenames[len(filenames) - 1].replace('.xlsx', '')
+        pre = osp.splitext(osp.basename(self.filepath))[0]
         for cnt in range(len(data)):
             # skip exception
             if util.nan_data(data[cnt, 0]) | util.nan_data(data[cnt, 1]):
@@ -350,7 +346,7 @@ class Generate:
                 continue
             name = pre + '-' + str(cnt) + '.png'
             if name in data_set:
-                x_new, f_new = self.normalization_each_image(x_array, f_array)
+                x_new, f_new = normalization_each_image(x_array, f_array)
                 # standard_name = standard.replace('.png')
                 save_path = 'image2\\plus\\' + pre + '-' + str(cnt) + 'vs.png'
                 process_contrast(x_new, f_new, x_standard, f_standard, save_path)
@@ -360,8 +356,7 @@ class Generate:
         loadfile = load.LoadData(self.filepath)
         file = loadfile.read_csv()
         maxlength = len(file)
-        filenames = self.filepath.split('\\')
-        pre = filenames[len(filenames) - 1].replace('.csv', '')
+        pre = osp.splitext(osp.basename(self.filepath))[0]
         f_max = max(np.array(file)[:, 1])
         print(pre + ' start, max_f = ' + str(f_max))
         # split
@@ -378,7 +373,7 @@ class Generate:
             if util.zero_data(x, f):
                 continue
             if name in data_set:
-                x_add, f_add = self.normalization_each_device(x, f, f_max, False)
+                x_add, f_add = normalization_each_device(x, f, f_max, False)
                 # standard_name = standard.replace('.png')
                 save_path = 'image2\\plus\\' + pre + '-' + str(cnt) + 'vs.png'
                 process_contrast(x_add, f_add, x_standard, f_standard, save_path)
