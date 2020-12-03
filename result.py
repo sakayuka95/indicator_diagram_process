@@ -3,6 +3,8 @@ created on 2020/12/1 9:48
 @author:yuka
 @note:result analysis:
       1.generate result from train log
+        1.1 train/val result
+        1.2 single result
       2.2-classify test error set analysis
       3.2-classify test set modify:
         3.1 delete error sample from total sample
@@ -20,7 +22,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def process_result(x1, f1, x2, f2, save_path):
+def process_contrast_result(x1, f1, x2, f2, save_path):
     plt.rcParams['font.sans-serif'] = ['KaiTi']  # 指定默认字体
     plt.rcParams['axes.unicode_minus'] = False
     plt.rcParams['figure.figsize'] = (6.4, 4.8)
@@ -37,7 +39,7 @@ def process_result(x1, f1, x2, f2, save_path):
     plt.show()
 
 
-def generate_result_from_log(txt_path, save_file):
+def generate_contrast_result(txt_path, save_file):
     file = open(txt_path)
     val_loss_list = []
     train_loss_list = []
@@ -55,7 +57,38 @@ def generate_result_from_log(txt_path, save_file):
     file.close()
     val_iter = list(range(0, 100000, 4000))
     train_iter = list(range(0, 100000, 2000))
-    process_result(train_iter, train_loss_list, val_iter, val_loss_list, save_file)
+    process_contrast_result(train_iter, train_loss_list, val_iter, val_loss_list, save_file)
+
+
+def process_single_result(x1, f1, save_path):
+    plt.rcParams['font.sans-serif'] = ['KaiTi']  # 指定默认字体
+    plt.rcParams['axes.unicode_minus'] = False
+    plt.rcParams['figure.figsize'] = (6.4, 4.8)
+    plt.rcParams['savefig.dpi'] = 100
+    # plt.ylim(min(f) - 20, max(f) + 10)
+
+    plt.plot(x1, f1, marker='o', color='red', linewidth=2.0, linestyle='-')
+    plt.legend(['训练集'])
+    plt.title("损失率与迭代次数的关系")
+    plt.xlabel('迭代次数')
+    plt.ylabel('损失率')
+    plt.savefig(save_path, bbox_inches='tight')
+    plt.show()
+
+
+def generate_single_result(txt_path, save_file, min_iter, max_iter, interval):
+    file = open(txt_path)
+    loss_list = []
+    for line in file:
+        if line.find('Iteration') != -1 and line.find('loss') != -1:
+            temp_len = len(line.split(','))
+            temp = line.split(',')[temp_len-1]
+            loss = temp[7:len(temp)-1]
+            print('loss is ' + loss)
+            loss_list.append(float(loss))
+    file.close()
+    iteration = list(range(min_iter, max_iter+1, interval))
+    process_single_result(iteration, loss_list, save_file)
 
 
 def get_minus_and_plus_num(image_name_set, label, error_set, path):
@@ -175,7 +208,9 @@ def find_common_result(error_path_2, error_path_3):
 
 
 if __name__ == "__main__":
-    generate_result_from_log('D:\\graduationproject\\ver3\\log3.txt', 'D:\\graduationproject\\ver3\\result3.png')
+    # generate_contrast_result('D:\\graduationproject\\ver3\\log3-0.txt', 'D:\\graduationproject\\ver3\\result3.png')
+    generate_single_result('D:\\graduationproject\\ver3\\log3-1.txt', 'D:\\graduationproject\\ver3\\result3-1.png',
+                           0, 210000, 2000)
     # modify_sample('D:\\graduationproject\\ver3\compare\\1110test\\todo\\',
     #  'D:\\pythonProject\\image2\\SimilarityDetection\\all')
     # draw_test_result('D:\\graduationproject\\ver3\\compare\\test_analyse.xlsx', 'D:\\graduationproject\\ver3\\compare\\test_loss1.png')
