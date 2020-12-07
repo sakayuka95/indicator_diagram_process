@@ -69,7 +69,7 @@ def generate_contrast_minus_train(img_path, base_path):
             x_2, f_2 = load.get_pixel_by_index(index_2, pf)
             pre = image_name.replace('.png', '')
             save_path = osp.join(base_path, pre + 'tm.png')
-            generate_origin.process_contrast(x_1, f_1, x_2, f_2, save_path)
+            generate_origin.process_contrast(x_2, f_2, x_1, f_1, save_path)
 
 
 # 250~590 todo
@@ -216,7 +216,8 @@ def select_val_sample(train_path, val_path, base_num):
 
 
 if __name__ == '__main__':
-    generate_contrast_plus_train('D:\\pythonProject\\image1\\test', 'D:\\pythonProject\\image2')
+    generate_contrast_plus_train('D:\\pythonProject\\image\\oilsimilarity\\train',
+                                 'D:\\pythonProject\\image\\oilcompare\\2\\plus')
     # generate_contrast_minus_test('FD-1-360.png', 'D:\\pythonProject\\image1\\testset', 'D:\\pythonProject\\image2')
     # generate_single_contrast_by_name('FD-1-360.png', 'FD-1-380.png',
     #                                  'D:\\graduationproject\\ver3\\similarity\\cbir\\error')

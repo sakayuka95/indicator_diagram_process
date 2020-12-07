@@ -33,6 +33,9 @@ def generate_origin(filepath, base_path):
         elif fileName.find('.csv') != -1:
             file.generate_csv(base_path)
             # file.generate_csv_with_axis(base_path)
+        elif fileName.find('.png') != -1:
+            file.generate_image(base_path)
+            # file.generate_csv_with_axis(base_path)
 
 
 def generate_origin_map(filepath, save_path):
@@ -44,22 +47,10 @@ def generate_origin_map(filepath, save_path):
             file.generate_excel_map(content_list)
         elif fileName.find('.csv') != -1:
             file.generate_csv_map(content_list)
+        elif fileName.find('.png') != -1:
+            file.generate_image_map(content_list)
     pf = pd.DataFrame(content_list, columns=["image_name", "x", "f"])
     pf.to_csv(save_path)
-
-
-def generate_origin_from_image(img_path, base_path):
-    image_set = os.listdir(img_path)
-    for image in image_set:
-        loadfile = load.LoadData(osp.join(img_path, image))
-        image_data = loadfile.get_data_from_image()
-        pre = image.replace('.png', '')
-        temp_data = image_data
-        temp_list = []
-        for data in temp_data:
-            temp_list.append(data)
-        save_path = osp.join(base_path, pre + '.png')
-        process_from_image(temp_list, save_path)
 
 
 def generate_enhance(origin_path):
@@ -244,6 +235,13 @@ def normalization_each_image(x, f):
     return x_new, f_new
 
 
+def generate_map(image_name, x_new, f_new, content_list):
+    image_dict = {"image_name": image_name,
+                  "x": ','.join(str(x_new.tolist()).replace(']', '').replace('[', '').split(',')),
+                  "f": ','.join(str(f_new.tolist()).replace(']', '').replace('[', '').split(','))}
+    content_list.append(image_dict)
+
+
 class Generate:
 
     def __init__(self, path=None, max_x=None, max_f=None):
@@ -325,6 +323,17 @@ class Generate:
             # image_cnt += 1
         # print(pre + ' num = ' + str(exception_zero) + ' ; ' + str(image_cnt))
 
+    def generate_image(self, base_path):
+        loadfile = load.LoadData(self.filepath)
+        image_data = loadfile.get_data_from_image()
+        pre = osp.splitext(osp.basename(self.filepath))[0]
+        temp_data = image_data
+        temp_list = []
+        for data in temp_data:
+            temp_list.append(data)
+        save_path = osp.join(base_path, pre + '.png')
+        process_from_image(temp_list, save_path)
+
     def generate_csv_with_axis(self, base_path):
         loadfile = load.LoadData(self.filepath)
         file = loadfile.read_csv()
@@ -375,10 +384,9 @@ class Generate:
                 continue
             # normalization_max
             x_new, f_new = normalization_each_image(x_array, f_array)
-            image_dict = {"image_name": pre + '-' + str(cnt) + '.png',
-                          "x": ','.join(str(x_new.tolist()).replace(']', '').replace('[', '').split(',')),
-                          "f": ','.join(str(f_new.tolist()).replace(']', '').replace('[', '').split(','))}
-            content_list.append(image_dict)
+            image_name = pre + '-' + str(cnt) + '.png'
+            generate_map(image_name, x_new, f_new, content_list)
+
 
     def generate_csv_map(self, content_list):
         loadfile = load.LoadData(self.filepath)
@@ -409,10 +417,20 @@ class Generate:
             # x_new, f_new = self.normalization_each_image(x, f)
             # normalization_100
             x_new, f_new = normalization_each_device(x, f, f_max, False)
-            image_dict = {"image_name": pre + '-' + str(cnt) + '.png',
-                          "x": ','.join(str(x_new.tolist()).replace(']', '').replace('[', '').split(',')),
-                          "f": ','.join(str(f_new.tolist()).replace(']', '').replace('[', '').split(','))}
-            content_list.append(image_dict)
+            generate_map(image_name, x_new, f_new, content_list)
+
+    def generate_image_map(self, content_list):
+        loadfile = load.LoadData(self.filepath)
+        image_data = loadfile.get_data_from_image()
+        pre = osp.splitext(osp.basename(self.filepath))[0]
+        length = len(image_data)
+        x_new = np.empty([length, 1], dtype=int)
+        f_new = np.empty([length, 1], dtype=int)
+        for i in range(length):
+            x_new[i] = image_data[i][0]
+            f_new[i] = image_data[i][1]
+        image_name = pre + '.png'
+        generate_map(image_name, x_new, f_new, content_list)
 
 
     # deprecated
@@ -515,8 +533,9 @@ class Generate:
 
 
 if __name__ == '__main__':
-    generate_origin('D:\\pythonProject\\data1', 'D:\\pythonProject\\5')
-    generate_origin_map('D:\\pythonProject\\data1', 'D:\\pythonProject\\image_data_map.csv')
+    # generate_origin('D:\\graduationproject\\DataPreparation\\1119test\\data',
+    #                 'D:\\pythonProject\\image\\origin_images\\generate')
+    generate_origin_map('D:\\graduationproject\\DataPreparation\\1119test\\data', 'D:\\pythonProject\\image_data_map2.csv')
     # generate_enhance('D:\\pythonProject\\image\\images')
     # data_augmentation_from_image('D:\\graduationproject\DataPreparation\\1119test\\data', 4500,
     #                              'D:\\pythonProject\\image\\origin_images\\generate')
