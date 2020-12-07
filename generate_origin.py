@@ -48,6 +48,20 @@ def generate_origin_map(filepath, save_path):
     pf.to_csv(save_path)
 
 
+def generate_origin_from_image(img_path, base_path):
+    image_set = os.listdir(img_path)
+    for image in image_set:
+        loadfile = load.LoadData(osp.join(img_path, image))
+        image_data = loadfile.get_data_from_image()
+        pre = image.replace('.png', '')
+        temp_data = image_data
+        temp_list = []
+        for data in temp_data:
+            temp_list.append(data)
+        save_path = osp.join(base_path, pre + '.png')
+        process_from_image(temp_list, save_path)
+
+
 def generate_enhance(origin_path):
     image_path_set = os.listdir(origin_path)
     print(origin_path + ' has ' + str(len(image_path_set)) + ' labels ')
@@ -67,7 +81,7 @@ def generate_enhance(origin_path):
 def data_augmentation_from_image(img_path, base_num, base_path):
     image_set = os.listdir(img_path)
     for image in image_set:
-        loadfile = load.LoadData(img_path)
+        loadfile = load.LoadData(osp.join(img_path, image))
         image_data = loadfile.get_data_from_image()
         pre = image.replace('.png', '')
         num = int(base_num + random.randint(-700, 800))
