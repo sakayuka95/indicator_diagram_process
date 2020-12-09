@@ -3,7 +3,7 @@ created on 2020/12/1 9:48
 @author:yuka
 @note:result analysis:
       1.generate result from train log
-        1.1 train/val result
+        1.1 contrast result
         1.2 single result
       2.2-classify test error set analysis
       3.2-classify test set modify:
@@ -89,6 +89,10 @@ def generate_single_result(txt_path, save_file, min_iter, max_iter, interval):
     file.close()
     iteration = list(range(min_iter, max_iter+1, interval))
     process_single_result(iteration, loss_list, save_file)
+
+
+#  todo find某文本，生成list，保存在一个csv，读取并merge,如果不存在则创建
+#  todo 读取结果文件 获取list，绘制单条，绘制多条，入参（横纵坐标，图例）
 
 
 def get_minus_and_plus_num(image_name_set, label, error_set, path):

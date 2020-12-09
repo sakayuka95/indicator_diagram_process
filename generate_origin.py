@@ -56,14 +56,6 @@ def generate_origin_map(filepath, save_path):
     pf.to_csv(save_path)
 
 
-def merge_map(filepath1, filepath2, save_path):
-    f1 = pd.read_csv(filepath1)
-    f2 = pd.read_csv(filepath2)
-    file = [f1, f2]
-    train = pd.concat(file)
-    train.to_csv(save_path)
-
-
 def generate_enhance(origin_path):
     image_path_set = os.listdir(origin_path)
     print(origin_path + ' has ' + str(len(image_path_set)) + ' labels ')
@@ -547,11 +539,8 @@ class Generate:
 if __name__ == '__main__':
     # generate_origin('D:\\graduationproject\\DataPreparation\\1119test\\data',
     #                 'D:\\pythonProject\\image\\origin_images\\generate')
-    # generate_origin_map('D:\\pythonProject\\image\\oilsimilarity\\beforeda\\imagemap',
-    #                     'D:\\pythonProject\\image_data_map_image.csv')
+    generate_origin_map('D:\\pythonProject\\image\\oilsimilarity\\beforeda\\imagemap',
+                        'D:\\pythonProject\\image_data_map_image.csv')
     # generate_enhance('D:\\pythonProject\\image\\images')
     # data_augmentation_from_image('D:\\graduationproject\DataPreparation\\1119test\\data', 4500,
     #                              'D:\\pythonProject\\image\\origin_images\\generate')
-    merge_map('D:\\pythonProject\\image_data_map_data.csv',
-              'D:\\pythonProject\\image_data_map_image.csv',
-              'D:\\pythonProject\\image_data_map.csv')
