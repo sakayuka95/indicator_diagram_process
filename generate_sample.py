@@ -9,6 +9,7 @@ created on 2020/12/1 14:36
         2.3 print into a txt file:a.png b.png label
       3.select val sample
 """
+import shutil
 
 import generate_origin
 import load
@@ -211,13 +212,40 @@ def select_val_sample(train_path, val_path, base_num):
             # shutil.copyfile(old_name, new_name)
             src_path = osp.join(train_path, label, image_name)
             dst_path = osp.join(val_path, label)
+            if not os.path.exists(dst_path):
+                os.makedirs(dst_path)
             move(src_path, dst_path)
             num -= 1
 
 
+def copy_sample(train_path, val_path, base_num):
+    image_path_set = os.listdir(train_path)
+    print(train_path + ' has ' + str(len(image_path_set)) + ' labels ')
+    for label in image_path_set:
+        image_name_set = os.listdir(osp.join(train_path, label))
+        print(label + ': ' + str(len(image_name_set)))
+        num = int(base_num + random.randint(-200, 300))
+        while num > 0:
+            print(str(len(image_name_set)))
+            index = random.randint(0, len(image_name_set))
+            print(str(index))
+            image_name = image_name_set[index]
+            print(image_name)
+            image_name_set.remove(image_name)
+            # shutil.copyfile(old_name, new_name)
+            src_path = osp.join(train_path, label, image_name)
+            if not os.path.exists(osp.join(val_path, label)):
+                os.makedirs(osp.join(val_path, label))
+            dst_path = osp.join(val_path, label, image_name)
+            shutil.copyfile(src_path, dst_path)
+            num -= 1
+
+
 if __name__ == '__main__':
-    generate_contrast_plus_train('D:\\pythonProject\\image\\oilsimilarity\\train',
-                                 'D:\\pythonProject\\image\\oilcompare\\2\\plus')
+    generate_contrast_plus_train('D:\\pythonProject\\image\\oilsimilarity\\beforeda\\imagemap',
+                                 'D:\\pythonProject\\image\\oilcompare\\generate_from_image\\plus')
+    # generate_contrast_minus_train('D:\\pythonProject\\image\\oilsimilarity\\beforeda',
+    #                               'D:\\pythonProject\\image\\oilcompare\\generate_from_image\\minus')
     # generate_contrast_minus_test('FD-1-360.png', 'D:\\pythonProject\\image1\\testset', 'D:\\pythonProject\\image2')
     # generate_single_contrast_by_name('FD-1-360.png', 'FD-1-380.png',
     #                                  'D:\\graduationproject\\ver3\\similarity\\cbir\\error')
@@ -227,3 +255,5 @@ if __name__ == '__main__':
     #                          'D:\\pythonProject\\image2\\SimilarityDetection\\data.txt')
     # select_val_sample('image\\oilsimilarity\\generate_from_image\\train',
     #                   'image\\oilsimilarity\\generate_from_image\\val\\', 150)
+    # copy_sample('D:\\pythonProject\\image\\oilsimilarity\\afterda\\generate_from_image\\train',
+    #             'D:\\pythonProject\\image\\oilsimilarity\\beforeda\\', 1000)

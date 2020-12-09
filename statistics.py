@@ -97,6 +97,10 @@ def get_each_label_count(path):
         print(label + ' has ' + str(label_num) + ' images ')
 
 
+def count_lines(path):
+    print(str(len(open(path, 'r').readlines())))
+
+
 if __name__ == '__main__':
     get_csv_max('D:\\pythonProject\\data\\csv')
     get_excel_max('D:\\pythonProject\\data\\excel')

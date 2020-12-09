@@ -208,9 +208,9 @@ def find_common_result(error_path_2, error_path_3):
 
 
 if __name__ == "__main__":
-    # generate_contrast_result('D:\\graduationproject\\ver3\\log3-0.txt', 'D:\\graduationproject\\ver3\\result3.png')
-    generate_single_result('D:\\graduationproject\\ver3\\log3-1.txt', 'D:\\graduationproject\\ver3\\result3-1.png',
-                           0, 210000, 2000)
+    generate_contrast_result('D:\\graduationproject\\ver3\\log2-18.txt', 'D:\\graduationproject\\ver3\\result2-18.png')
+    # generate_single_result('D:\\graduationproject\\ver3\\log3-1.txt', 'D:\\graduationproject\\ver3\\result3-1.png',
+    #                        0, 210000, 2000)
     # modify_sample('D:\\graduationproject\\ver3\compare\\1110test\\todo\\',
     #  'D:\\pythonProject\\image2\\SimilarityDetection\\all')
     # draw_test_result('D:\\graduationproject\\ver3\\compare\\test_analyse.xlsx', 'D:\\graduationproject\\ver3\\compare\\test_loss1.png')

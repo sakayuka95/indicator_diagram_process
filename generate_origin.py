@@ -7,6 +7,9 @@ created on 2020/10/26 12:10
       3.draw indicator diagram
       4.save image as a png file
       5.generate origin map:png file name; x pixel; f pixel
+        5.1 from image
+        5.2 from pixel map
+        5.3 from origin
       6.data augmentation
         6.1 from image
         6.2 from pixel map
@@ -47,10 +50,18 @@ def generate_origin_map(filepath, save_path):
             file.generate_excel_map(content_list)
         elif fileName.find('.csv') != -1:
             file.generate_csv_map(content_list)
-        elif fileName.find('.png') != -1:
+        elif osp.isdir(osp.join(filepath, fileName)):
             file.generate_image_map(content_list)
     pf = pd.DataFrame(content_list, columns=["image_name", "x", "f"])
     pf.to_csv(save_path)
+
+
+def merge_map(filepath1, filepath2, save_path):
+    f1 = pd.read_csv(filepath1)
+    f2 = pd.read_csv(filepath2)
+    file = [f1, f2]
+    train = pd.concat(file)
+    train.to_csv(save_path)
 
 
 def generate_enhance(origin_path):
@@ -387,7 +398,6 @@ class Generate:
             image_name = pre + '-' + str(cnt) + '.png'
             generate_map(image_name, x_new, f_new, content_list)
 
-
     def generate_csv_map(self, content_list):
         loadfile = load.LoadData(self.filepath)
         file = loadfile.read_csv()
@@ -420,18 +430,20 @@ class Generate:
             generate_map(image_name, x_new, f_new, content_list)
 
     def generate_image_map(self, content_list):
-        loadfile = load.LoadData(self.filepath)
-        image_data = loadfile.get_data_from_image()
-        pre = osp.splitext(osp.basename(self.filepath))[0]
-        length = len(image_data)
-        x_new = np.empty([length, 1], dtype=int)
-        f_new = np.empty([length, 1], dtype=int)
-        for i in range(length):
-            x_new[i] = image_data[i][0]
-            f_new[i] = image_data[i][1]
-        image_name = pre + '.png'
-        generate_map(image_name, x_new, f_new, content_list)
-
+        image_path_set = os.listdir(self.filepath)
+        for image in image_path_set:
+            loadfile = load.LoadData(osp.join(self.filepath, image))
+            image_data = loadfile.get_data_from_image()
+            pre = osp.splitext(osp.basename(osp.join(self.filepath, image)))[0]
+            length = len(image_data)
+            x_new = np.empty([length, 1], dtype=int)
+            f_new = np.empty([length, 1], dtype=int)
+            for i in range(length):
+                x_new[i] = image_data[i][0]
+                f_new[i] = image_data[i][1]
+            image_name = pre + '.png'
+            generate_map(image_name, x_new, f_new, content_list)
+            print(image_name)
 
     # deprecated
     def get_standard_excel(self, standard):
@@ -535,7 +547,11 @@ class Generate:
 if __name__ == '__main__':
     # generate_origin('D:\\graduationproject\\DataPreparation\\1119test\\data',
     #                 'D:\\pythonProject\\image\\origin_images\\generate')
-    generate_origin_map('D:\\graduationproject\\DataPreparation\\1119test\\data', 'D:\\pythonProject\\image_data_map2.csv')
+    # generate_origin_map('D:\\pythonProject\\image\\oilsimilarity\\beforeda\\imagemap',
+    #                     'D:\\pythonProject\\image_data_map_image.csv')
     # generate_enhance('D:\\pythonProject\\image\\images')
     # data_augmentation_from_image('D:\\graduationproject\DataPreparation\\1119test\\data', 4500,
     #                              'D:\\pythonProject\\image\\origin_images\\generate')
+    merge_map('D:\\pythonProject\\image_data_map_data.csv',
+              'D:\\pythonProject\\image_data_map_image.csv',
+              'D:\\pythonProject\\image_data_map.csv')
