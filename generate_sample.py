@@ -10,7 +10,6 @@ created on 2020/12/1 14:36
       3.select val sample
 """
 import shutil
-
 import generate_origin
 import load
 import os
