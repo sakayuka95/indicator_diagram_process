@@ -111,7 +111,7 @@ class Img2Area:
         return float(s_1 / s_2)
 
     def count_area_by_name(self, img_name):
-        loadfile = load.LoadData('D:\\pythonProject\\image_data_map.csv')
+        loadfile = load.LoadData('D:\\data\\name_point\\image_data_map.csv')
         pixel_data, dict_index = loadfile.get_pixel_data()
         index = dict_index.get(img_name)
         x, f = load.get_pixel_by_index(index, data)

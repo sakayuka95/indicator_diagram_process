@@ -25,3 +25,5 @@ def zero_data(x, f):
 
 def nan_data(x):
     return isinstance(x, float) and math.isnan(x)
+
+

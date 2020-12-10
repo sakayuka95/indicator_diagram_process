@@ -254,3 +254,5 @@ if __name__ == '__main__':
     #                          'D:\\pythonProject\\image2\\SimilarityDetection\\data.txt')
     # select_val_sample('image\\oilsimilarity\\generate_from_image\\train',
     #                   'image\\oilsimilarity\\generate_from_image\\val\\', 150)
+    # copy_sample('D:\\pythonProject\\image\\oilsimilarity\\afterda\\generate_from_image\\train',
+    #             'D:\\pythonProject\\image\\oilsimilarity\\beforeda\\', 1000)
