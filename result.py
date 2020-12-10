@@ -40,6 +40,7 @@ ch = {
     'test_loss': '测试集损失率'
 }
 
+
 def generate_log_result(path_to_log, flag):
     iteration = []
     acc = []
@@ -132,7 +133,7 @@ def plot_training_log(x_label, y_label, series, save_path):
     plt.show()
 
 
-# todo 异常处理:任意一个为空;
+# todo 判空
 def draw_single_param(x_label, y_label, names, save_path):
     origin = pd.read_csv('log_result.csv')
     # 设置下标
@@ -153,6 +154,7 @@ def draw_single_param(x_label, y_label, names, save_path):
     plot_training_log(x_label.split('_')[1], y_label.split('_')[1], series, save_path)
 
 
+# todo 判空
 def draw_multiple_param(data, name, save_path):
     origin = pd.read_csv('log_result.csv')
     # 设置下标
@@ -392,7 +394,8 @@ def find_common_result(error_path_2, error_path_3):
 
 
 if __name__ == "__main__":
-    # generate_contrast_result('D:\\graduationproject\\ver3\\log2-18.txt', 'D:\\graduationproject\\ver3\\result2-18.png')
+    # generate_contrast_result('D:\\graduationproject\\ver3\\log2-18.txt',
+    #                          'D:\\graduationproject\\ver3\\result2-18.png')
     # generate_single_result('D:\\graduationproject\\ver3\\log3-1.txt', 'D:\\graduationproject\\ver3\\result3-1.png',
     #                        0, 210000, 2000)
     # modify_sample('D:\\graduationproject\\ver3\compare\\1110test\\todo\\',

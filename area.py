@@ -37,7 +37,7 @@ def normalization(x, data_max):
     return data_max, x
 
 
-def getArea(org_data):
+def get_area(org_data):
     # data是最原始的示功图载荷位移数据
     num = 0
     up_index = 0
@@ -142,7 +142,7 @@ if __name__ == '__main__':
                 continue
 
             # 原始的200个点算功图面积
-            s1 = getArea(data_idx)
+            s1 = get_area(data_idx)
             print('根据映射关系回推的示功图近似面积为：' + str(s1))
             # 等比列放大归一化
             arr_max, data_idx_new = normalization(data_idx, x_max)

@@ -27,8 +27,6 @@ def show_pic(path, interval):
         img_arr = cv.imread(osp.join(source_path, img_name), cv.IMREAD_GRAYSCALE)
         cv.imshow('img', img_arr)
         cv.waitKey(200)
-    # cv.imshow('img', img_arr)
-    # cv.waitKey()
 
 
 def generate_video(video_dir, im_dir, interval):
@@ -38,8 +36,8 @@ def generate_video(video_dir, im_dir, interval):
     img = cv.imread("FD-5-4339.png")
     size = img.shape[:2]
     print(size)
-    forcc = cv.VideoWriter_fourcc(*'mp4v')
-    out = cv.VideoWriter(video_dir, forcc, 10, (size[1], size[0]))
+    fourcc = cv.VideoWriter_fourcc(*'mp4v')
+    out = cv.VideoWriter(video_dir, fourcc, 10, (size[1], size[0]))
     for img_name in jpg_set:
         frame = cv.imread(osp.join(source_path, img_name))
         out.write(frame)
@@ -48,10 +46,10 @@ def generate_video(video_dir, im_dir, interval):
 def test():
     img = cv.imread("FD-5-4339.png")
     size = img.shape[:2]
-    forcc = cv.VideoWriter_fourcc(*'mp4v')
-    out = cv.VideoWriter("3.mp4", forcc, 10, (size[1], size[0]))
-    # forcc = cv.VideoWriter_fourcc(*'XVID')
-    # out = cv.VideoWriter("3.avi", forcc, 10, (size[1], size[0]))
+    fourcc = cv.VideoWriter_fourcc(*'mp4v')
+    out = cv.VideoWriter("3.mp4", fourcc, 10, (size[1], size[0]))
+    # fourcc = cv.VideoWriter_fourcc(*'XVID')
+    # out = cv.VideoWriter("3.avi", fourcc, 10, (size[1], size[0]))
     out.write(img)
     print(size)
 
