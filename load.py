@@ -31,22 +31,25 @@ class LoadData:
         return pd.read_csv(self.filepath, usecols=['位移', '载荷'], encoding='ANSI')
 
     def get_data_from_image(self):
-        img_arr = cv.imread(self.filepath, cv.IMREAD_GRAYSCALE)
+        img_arr_origin = cv.imread(self.filepath, cv.IMREAD_GRAYSCALE)
+        # 绘制时翻转回来
+        img_arr = cv.flip(img_arr_origin, 0, dst=None)
         span = list(range(256))[:-1:1]
         list_up = []
         list_down = []
         cnt = 0
         for col in span:
             tmp = img_arr[:, col]
+            # not blank
             if (tmp == 255).any != 0:
                 if cnt % 2 == 0:
                     for row in range(256):
-                        if tmp[row] < 50:
+                        if tmp[row] < 200:
                             list_up.append((col, row))
                             break
                 else:
                     for row in reversed(range(256)):
-                        if tmp[row] < 50:
+                        if tmp[row] < 200:
                             list_down.append((col, row))
                             break
             cnt += 1

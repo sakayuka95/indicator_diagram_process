@@ -5,6 +5,7 @@ created on 2020/12/1 11:10
 """
 
 import numpy as np
+import pandas as pd
 import os
 import os.path as osp
 import load
@@ -97,6 +98,21 @@ def get_each_label_count(path):
         print(label + ' has ' + str(label_num) + ' images ')
 
 
+def count_lines(path):
+    print(str(len(open(path, 'r').readlines())))
+
+
+def merge_map(filepath1, filepath2, save_path):
+    f1 = pd.read_csv(filepath1)
+    f2 = pd.read_csv(filepath2)
+    file = [f1, f2]
+    train = pd.concat(file)
+    train.to_csv(save_path)
+
+
 if __name__ == '__main__':
     get_csv_max('D:\\pythonProject\\data\\csv')
     get_excel_max('D:\\pythonProject\\data\\excel')
+    merge_map('D:\\pythonProject\\image_data_map_data.csv',
+              'D:\\pythonProject\\image_data_map_image.csv',
+              'D:\\pythonProject\\image_data_map.csv')

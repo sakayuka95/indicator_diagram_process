@@ -1,6 +1,6 @@
 """
 created on 2020/11/30 11:10
-@author:Xia Feng yuka
+@author:Shar yuka
 @note:trend analysis:
       1.generate trend video from image list
       2.draw in one image
