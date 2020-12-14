@@ -37,8 +37,8 @@ def get_str_value(value, param):
     return string
 
 
-def parse_excel():
-    data = xlrd.open_workbook('D:\\pythonProject\\data\\test\\大港油田示功图测试数据.xls')
+def parse_excel(file_path, save_path):
+    data = xlrd.open_workbook(file_path)
     # name_set = set()
     table = data.sheets()[0]
     row = table.nrows
@@ -47,12 +47,12 @@ def parse_excel():
         data_value = table.cell(r, 22).value
         if data_value == '':
             continue
-        device_path = osp.join('D:\\pythonProject\\txtdata', device_name)
+        device_path = osp.join(save_path, device_name)
         # if device_name not in name_set:
         #     name_set.add(device_name)
         if not os.path.exists(device_path):
             os.makedirs(device_path)
-        file_path = osp.join('D:\\pythonProject\\txtdata', device_name, device_name+'_'+str(r)+'.txt')
+        file_path = osp.join(save_path, device_name, device_name+'_'+str(r)+'.txt')
         print(file_path)
         data_value = table.cell(r, 22).value
         data_value = data_value.replace('\r', '')
@@ -584,3 +584,4 @@ if __name__ == '__main__':
     # generate_enhance('D:\\pythonProject\\image\\images')
     # data_augmentation_from_image('D:\\graduationproject\DataPreparation\\1119test\\data', 4500,
     #                              'D:\\pythonProject\\image\\origin_images\\generate')
+    # parse_excel('D:\\pythonProject\\data\\test\\大港油田示功图测试数据.xls', 'D:\\pythonProject\\txtdata')
