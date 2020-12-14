@@ -9,6 +9,9 @@ created on 2020/10/28 12:10
 
 import pandas as pd
 import cv2 as cv
+import xlrd
+import os
+import os.path as osp
 
 
 def get_pixel_by_index(index, data):
@@ -17,6 +20,45 @@ def get_pixel_by_index(index, data):
     x1 = list(map(eval, x.iloc[index].split(',')))
     f1 = list(map(eval, f.iloc[index].split(',')))
     return x1, f1
+
+
+def get_str_value(value, param):
+    string = ''
+    for i in range(1, len(value)):
+        string += value[i].split(',')[param]
+        if i != len(value)-1:
+            string += ' '
+    return string
+
+
+def parse_excel():
+    data = xlrd.open_workbook('D:\\pythonProject\\data\\test\\大港油田示功图测试数据.xls')
+    # name_set = set()
+    table = data.sheets()[0]
+    row = table.nrows
+    for r in range(1, row):
+        device_name = table.cell(r, 2).value
+        data_value = table.cell(r, 22).value
+        if data_value == '':
+            continue
+        device_path = osp.join('D:\\pythonProject\\txtdata', device_name)
+        # if device_name not in name_set:
+        #     name_set.add(device_name)
+        if not os.path.exists(device_path):
+            os.makedirs(device_path)
+        file_path = osp.join('D:\\pythonProject\\txtdata', device_name, device_name+'_'+str(r)+'.txt')
+        print(file_path)
+        data_value = table.cell(r, 22).value
+        data_value = data_value.replace('\r', '')
+        value = data_value.split('\n')
+        length = len(value)
+        x = get_str_value(value[1:length-1], 1)
+        print(x)
+        f = get_str_value(value[1:length-1], 0)
+        print(f)
+        with open(file_path, 'w') as fw:
+            fw.write(x + '\n')
+            fw.write(f + '\n')
 
 
 class LoadData:
