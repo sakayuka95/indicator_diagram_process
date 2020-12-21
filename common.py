@@ -66,7 +66,7 @@ def get_2classify_total_num_test(filepath):
     minus_num = 0
     plus_num = 0
     for image_path in fileset:
-        image_name_set = os.listdir(osp.join(filepath,image_path))
+        image_name_set = os.listdir(osp.join(filepath, image_path))
         num = len(image_name_set)
         total_num += num
         print(image_path + ' has ' + str(num) + ' images ')
@@ -82,7 +82,7 @@ def get_total_num(filepath):
     fileset = os.listdir(filepath)
     total_num = 0
     for image_path in fileset:
-        image_name_set = os.listdir(osp.join(filepath,image_path))
+        image_name_set = os.listdir(osp.join(filepath, image_path))
         num = len(image_name_set)
         total_num += num
         print(image_path + ' has ' + str(num) + ' images ')

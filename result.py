@@ -29,6 +29,17 @@ import matplotlib.pyplot as plt
 import csv
 import random
 
+ch = {
+    'iter': '迭代次数',
+    'acc': '准确度',
+    'loss': '损失率',
+    'train_acc': '训练集准确度',
+    'train_loss': '训练集损失率',
+    'val_acc': '验证集准确度',
+    'val_loss': '验证集损失率',
+    'test_loss': '测试集损失率'
+}
+
 
 def generate_log_result(path_to_log, flag):
     iteration = []
@@ -84,46 +95,37 @@ def train_log2csv(log_path, base_path, log_basename):
         writer.writerow(tmp)
 
 
-# todo 异常处理:任意一个为空;
-def draw_single_param(x_label, y_label, names, save_path):
-    origin = pd.read_csv('log_result.csv')
-    # 匹配name
-    temp = origin['log_name']
-    idx = []
-    for i, t in enumerate(temp):
-        if t in names:
-            idx.append(i)
-    # 切割csv
-    data = origin.iloc[idx]
-    x_list = data[x_label]
-    y_list = data[y_label]
+def random_marker(length):
+    result = []
+    marker_list = ['.', ',', 'o', 'v', '^', '<', '>', '1', '2', '3', '4',
+                   's', 'p', '*', 'h', 'H', '+', 'x', 'D', 'd', '|', '_']
+    marker_index = random.sample(range(0, 22), length)
+    for index in range(length):
+        result.append(marker_list[marker_index[index]])
+    return result
 
+
+def plot_training_log(x_label, y_label, series, save_path):
+    length = len(series)
     plt.rcParams['font.sans-serif'] = ['KaiTi']  # 指定默认字体
     plt.rcParams['axes.unicode_minus'] = False
     plt.rcParams['figure.figsize'] = (6.4, 4.8)
     plt.rcParams['savefig.dpi'] = 100
-    length = len(names)
     marker_list = random_marker(length)
+    legends = []
 
-    for index in range(length):
-        x_str = x_list.iloc[index]
-        x_value = list(map(eval, x_str[1:len(x_str) - 1].split(',')))
-        y_str = y_list.iloc[index]
-        y_value = list(map(eval, y_str[1:len(y_str) - 1].split(',')))
+    for index, d in enumerate(series):
+        legends.append(d['legend'])
         color = [random.random(), random.random(), random.random()]
         marker = marker_list[index]
+        x_value = list(map(eval, d['x'][1:len(d['x']) - 1].split(',')))
+        y_value = list(map(eval, d['y'][1:len(d['y']) - 1].split(',')))
+        # acc last loss
+        if len(x_value) != len(y_value):
+            x_value = x_value[0:len(x_value)-1]
         plt.plot(x_value, y_value, marker=marker, color=color, linewidth=0.75)
 
-    ch = {
-        'train_iter': '迭代次数',
-        'train_acc': '准确度',
-        'train_loss': '损失率',
-        'val_iter': '迭代次数',
-        'val_acc': '准确度',
-        'val_loss': '损失率',
-    }
-
-    plt.legend(names)
+    plt.legend(legends)
     plt.title(ch[y_label] + '与' + ch[x_label] + "的关系")
     plt.xlabel(ch[x_label])
     plt.ylabel(ch[y_label])
@@ -131,9 +133,44 @@ def draw_single_param(x_label, y_label, names, save_path):
     plt.show()
 
 
-# todo
-def draw_multiple_param(x_labels, y_labels, name, save_path):
+# todo 判空
+def draw_single_param(x_label, y_label, names, save_path):
     origin = pd.read_csv('log_result.csv')
+    # 设置下标
+    origin.set_index("log_name", inplace=True)
+    # 获取指定行
+    data = origin.loc[names]
+    x_list = data[x_label]
+    y_list = data[y_label]
+    series = []
+
+    for index, n in enumerate(names):
+        s = dict()
+        s['legend'] = n + ch[y_label]
+        s['x'] = x_list.iloc[index]
+        s['y'] = y_list.iloc[index]
+        series.append(s)
+
+    plot_training_log(x_label.split('_')[1], y_label.split('_')[1], series, save_path)
+
+
+# todo 判空
+def draw_multiple_param(data, name, save_path):
+    origin = pd.read_csv('log_result.csv')
+    # 设置下标
+    origin.set_index("log_name", inplace=True)
+    # 获取指定行
+    record = origin.loc[name]
+    series = []
+
+    for d in data:
+        s = dict()
+        s['legend'] = name + ch[d[1]]
+        s['x'] = record[d[0]]
+        s['y'] = record[d[1]]
+        series.append(s)
+
+    plot_training_log(data[0][0].split('_')[1], data[0][1].split('_')[1], series, save_path)
 
 
 def draw_test_result(paths, save_path):
@@ -146,34 +183,24 @@ def draw_test_result(paths, save_path):
     legends = []
 
     for index, path in enumerate(paths):
-        legends.append(path.split('_')[0])
+        legends.append(path.split('_')[0] + '测试集损失率')
         data_list = open(path, 'r').readlines()
         x = []
         y = []
         for data in data_list:
             data.strip()
             x.append(int(data.split(' ')[0]))
-            y.append(float(data.split(' ')[1])/8833)
+            y.append(float(data.split(' ')[1]) / 8833)
         color = [random.random(), random.random(), random.random()]
         marker = marker_list[index]
         plt.plot(x, y, marker=marker, color=color, linewidth=0.75)
 
     plt.legend(legends)
-    plt.title("测试集损失率与迭代次数的关系")
+    plt.title("损失率与迭代次数的关系")
     plt.xlabel('迭代次数')
     plt.ylabel('损失率')
     plt.savefig(save_path, bbox_inches='tight')
     plt.show()
-
-
-def random_marker(length):
-    result = []
-    marker_list = ['.', ',', 'o', 'v', '^', '<', '>', '1', '2', '3', '4',
-                   's', 'p', '*', 'h', 'H', '+', 'x', 'D', 'd', '|', '_']
-    marker_index = random.sample(range(0, 22), length)
-    for index in range(length):
-        result.append(marker_list[marker_index[index]])
-    return result
 
 
 # deprecated
@@ -367,7 +394,8 @@ def find_common_result(error_path_2, error_path_3):
 
 
 if __name__ == "__main__":
-    # generate_contrast_result('D:\\graduationproject\\ver3\\log2-18.txt', 'D:\\graduationproject\\ver3\\result2-18.png')
+    # generate_contrast_result('D:\\graduationproject\\ver3\\log2-18.txt',
+    #                          'D:\\graduationproject\\ver3\\result2-18.png')
     # generate_single_result('D:\\graduationproject\\ver3\\log3-1.txt', 'D:\\graduationproject\\ver3\\result3-1.png',
     #                        0, 210000, 2000)
     # modify_sample('D:\\graduationproject\\ver3\compare\\1110test\\todo\\',
@@ -378,5 +406,6 @@ if __name__ == "__main__":
     #                    'D:\\graduationproject\\ver3\\similarity\\cbir\\error')
     # train_log2csv('D:\\graduationproject\\ver3\\similarity\\1117\\train3.log',
     #               'log_result.csv', 'triplet50_34')
-    # draw_single_param('train_iter', 'train_loss', ['resnet50_45', 'triplet50_34'], 'test.png')
+    # draw_single_param('train_iter', 'train_loss', ['resnet50_34', 'triplet50_34'], 'test.png')
     draw_test_result(['resnet18_45_result.txt', 'shufflenetv2_45_result.txt'], 'test1.png')
+    # draw_multiple_param([['train_iter', 'train_acc'], ['val_iter', 'val_acc']], 'resnet50_34', 'test2.png')
