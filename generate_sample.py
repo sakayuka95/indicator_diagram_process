@@ -121,6 +121,34 @@ def generate_contrast_minus_test(image_name, path, base_path):
         generate_origin.process_contrast(x_1, f_1, x_2, f_2, save_path)
 
 
+def generate_random_contrast_test(path, base_path):
+    loadfile = load.LoadData('D:\\pythonProject\\image_data_map_image.csv')
+    pf, dict_index = loadfile.get_pixel_data()
+    image_path_set = os.listdir(path)
+    for label in image_path_set:
+        image_name_set = os.listdir(osp.join(path, label))
+        num = len(image_name_set)
+        if num < 2:
+            continue
+        for i in range(num):
+            image_name1 = image_name_set[i]
+            temp_label_set = list(image_name_set)
+            temp_label_set.remove(image_name1)
+            image_name2 = temp_label_set[random.randint(0, len(temp_label_set) - 1)]
+            index_1 = dict_index.get(image_name1)
+            index_2 = dict_index.get(image_name2)
+            print('index_1: ' + str(index_1) + ', index_2: ' + str(index_2))
+            if index_1 is None or index_2 is None:
+                continue
+            x_1, f_1 = load.get_pixel_by_index(index_1, pf)
+            x_2, f_2 = load.get_pixel_by_index(index_2, pf)
+            pre1 = image_name1.replace('.png', '')
+            pre2 = image_name2.replace('.png', '')
+            save_path = osp.join(base_path, pre1 + '~' + pre2 + '~' + str(i) + '.png')
+            generate_origin.process_contrast(x_1, f_1, x_2, f_2, save_path)
+
+
+
 def generate_single_contrast_by_name(image_name1, image_name2, base_path):
     loadfile = load.LoadData('D:\\pythonProject\\image_data_map.csv')
     pf, dict_index = loadfile.get_pixel_data()
@@ -169,12 +197,12 @@ def delete_duplicate(path):
         temp = image.split('~')
         temp1 = temp[0] + '~' + temp[1]
         temp2 = temp[1] + '~' + temp[0]
-        if temp1 in all_sample or temp2 in all_sample:
+        if temp1 in all_sample and temp2 in all_sample:
             print(path + image)
             cnt += 1
             os.remove(path + '\\' + image)
         all_sample.add(temp1)
-        all_sample.add(temp1)
+        all_sample.add(temp2)
     print(str(cnt))
 
 
@@ -241,8 +269,8 @@ def copy_sample(train_path, val_path, base_num):
 
 
 if __name__ == '__main__':
-    generate_contrast_plus_train('D:\\pythonProject\\image\\oilsimilarity\\beforeda\\imagemap',
-                                 'D:\\pythonProject\\image\\oilcompare\\generate_from_image\\plus')
+    # generate_contrast_plus_train('D:\\pythonProject\\image\\oilsimilarity\\beforeda\\imagemap',
+    #                              'D:\\pythonProject\\image\\oilcompare\\generate_from_image\\plus')
     # generate_contrast_minus_train('D:\\pythonProject\\image\\oilsimilarity\\beforeda',
     #                               'D:\\pythonProject\\image\\oilcompare\\generate_from_image\\minus')
     # generate_contrast_minus_test('FD-1-360.png', 'D:\\pythonProject\\image1\\testset', 'D:\\pythonProject\\image2')
@@ -256,3 +284,5 @@ if __name__ == '__main__':
     #                   'image\\oilsimilarity\\generate_from_image\\val\\', 150)
     # copy_sample('D:\\pythonProject\\image\\oilsimilarity\\afterda\\generate_from_image\\train',
     #             'D:\\pythonProject\\image\\oilsimilarity\\beforeda\\', 1000)
+    # generate_random_contrast_test('D:\\pythonProject\\image\\data1214', 'D:\\pythonProject\\image\\test1214')
+    delete_duplicate('D:\\pythonProject\\image\\test1214')

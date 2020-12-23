@@ -14,6 +14,7 @@ created on 2020/10/26 12:10
         6.1 from image
         6.2 from pixel map
         6.3 from origin(deprecated)
+      7.excel -> file(one device):txt files
 """
 
 import cv2 as cv
@@ -32,7 +33,7 @@ def get_str_value(value, param):
     string = ''
     for i in range(1, len(value)):
         string += value[i].split(',')[param]
-        if i != len(value)-1:
+        if i != len(value) - 1:
             string += ' '
     return string
 
@@ -52,15 +53,15 @@ def parse_excel(file_path, save_path):
         #     name_set.add(device_name)
         if not os.path.exists(device_path):
             os.makedirs(device_path)
-        file_path = osp.join(save_path, device_name, device_name+'_'+str(r)+'.txt')
+        file_path = osp.join(save_path, device_name, device_name + '_' + str(r) + '.txt')
         print(file_path)
         data_value = table.cell(r, 22).value
         data_value = data_value.replace('\r', '')
         value = data_value.split('\n')
         length = len(value)
-        x = get_str_value(value[1:length-1], 1)
+        x = get_str_value(value[1:length - 1], 1)
         print(x)
-        f = get_str_value(value[1:length-1], 0)
+        f = get_str_value(value[1:length - 1], 0)
         print(f)
         with open(file_path, 'w') as fw:
             fw.write(x + '\n')
@@ -232,8 +233,8 @@ def process_with_axis(x, f, save_path, max_f):
     # draw
     plt.rcParams['figure.figsize'] = (2.56, 2.56)
     plt.rcParams['savefig.dpi'] = 100
-    # plt.ylim(min(f) - 20, max(f) + 10)
-    plt.ylim(0, max_f)
+    plt.ylim(min(f) - 20, max(f) + 20)
+    # plt.ylim(0, 256)
     plt.plot(x, f, '-', color='#000000')
     plt.savefig(save_path, bbox_inches='tight')
     plt.show()
@@ -366,6 +367,43 @@ class Generate:
             # image_cnt += 1
         # print(pre + ' num = ' + str(exception_zero) + ' ; ' + str(image_cnt))
 
+    def generate_csv_i(self, base_path):
+        loadfile = load.LoadData(self.filepath)
+        file = loadfile.read_csv_i()
+        maxlength = len(file)
+        exception_zero = 0
+        pre = osp.splitext(osp.basename(self.filepath))[0]
+        f_max = max(np.array(file)[:, 1])
+        print(pre + ' start, max_f = ' + str(f_max))
+        # split
+        cnt = 0
+        idx = 0
+        # image_cnt = 0
+        while maxlength - 200 * cnt > 0:
+            # while cnt < 5:
+            temp = file[idx:idx + 200]
+            data = np.array(temp)
+            x = data[:, 0]
+            f = data[:, 1]
+            idx += 200
+            cnt += 1
+            # skip exception
+            if util.zero_data(x, f):
+                exception_zero += 1
+                # print(pre + '-' + str(cnt) + ':zero')
+                continue
+            # normalization_max
+            # x_new, f_new = self.normalization_each_image(x, f)
+            # normalization_100
+            x_new, f_new = normalization_each_device(x, f, f_max, False)
+            # draw and save
+            save_path = osp.join(base_path, pre + '-' + str(cnt) + '.png')
+            x_ii = range(0, 200)
+            process_with_axis(x_ii, f_new, save_path, None)
+            # process(x_new, f_new, save_path)
+            # image_cnt += 1
+        # print(pre + ' num = ' + str(exception_zero) + ' ; ' + str(image_cnt))
+
     def generate_image(self, base_path):
         loadfile = load.LoadData(self.filepath)
         image_data = loadfile.get_data_from_image()
@@ -375,7 +413,13 @@ class Generate:
         for data in temp_data:
             temp_list.append(data)
         save_path = osp.join(base_path, pre + '.png')
-        process_from_image(temp_list, save_path)
+        # process_from_image(temp_list, save_path)
+        x = []
+        f = []
+        for i in temp_list:
+            x.append(i[0])
+            f.append(i[1])
+        process_with_axis(x, f, save_path, None)
 
     def generate_csv_with_axis(self, base_path):
         loadfile = load.LoadData(self.filepath)
@@ -474,6 +518,7 @@ class Generate:
                 x_new[i] = image_data[i][0]
                 f_new[i] = image_data[i][1]
             image_name = pre + '.png'
+            # image_name = pre + '.jpg'
             generate_map(image_name, x_new, f_new, content_list)
             print(image_name)
 
@@ -576,12 +621,18 @@ class Generate:
                 process_contrast(x_add, f_add, x_standard, f_standard, save_path)
 
 
+def generate_i():
+    file = Generate('D:\\pythonProject\\data1\\FD-1.csv')
+    file.generate_csv_i('D:\\pythonProject\\data1\\')
+
+
 if __name__ == '__main__':
-    # generate_origin('D:\\graduationproject\\DataPreparation\\1119test\\data',
-    #                 'D:\\pythonProject\\image\\origin_images\\generate')
-    generate_origin_map('D:\\pythonProject\\image\\oilsimilarity\\beforeda\\imagemap',
+    # generate_origin('D:\\pythonProject\\testt\\',
+    #                 'D:\\pythonProject\\testt\\')
+    generate_origin_map('D:\pythonProject\image\data1214',
                         'D:\\pythonProject\\image_data_map_image.csv')
     # generate_enhance('D:\\pythonProject\\image\\images')
     # data_augmentation_from_image('D:\\graduationproject\DataPreparation\\1119test\\data', 4500,
     #                              'D:\\pythonProject\\image\\origin_images\\generate')
     # parse_excel('D:\\pythonProject\\data\\test\\大港油田示功图测试数据.xls', 'D:\\pythonProject\\txtdata')
+    # generate_i()

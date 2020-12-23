@@ -30,6 +30,9 @@ class LoadData:
     def read_csv(self):
         return pd.read_csv(self.filepath, usecols=['位移', '载荷'], encoding='ANSI')
 
+    def read_csv_i(self):
+        return pd.read_csv(self.filepath, usecols=['位移', '电流'], encoding='ANSI')
+
     def get_data_from_image(self):
         img_arr_origin = cv.imread(self.filepath, cv.IMREAD_GRAYSCALE)
         # 绘制时翻转回来

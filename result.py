@@ -123,7 +123,7 @@ def plot_training_log(x_label, y_label, series, save_path):
         # acc last loss
         if len(x_value) != len(y_value):
             x_value = x_value[0:len(x_value)-1]
-        plt.plot(x_value, y_value, marker=marker, color=color, linewidth=0.75)
+        plt.plot(x_value, y_value, marker=marker, color=color, linewidth=0.75, markersize=3)
 
     plt.legend(legends)
     plt.title(ch[y_label] + '与' + ch[x_label] + "的关系")
@@ -183,7 +183,7 @@ def draw_test_result(paths, save_path):
     legends = []
 
     for index, path in enumerate(paths):
-        legends.append(path.split('_')[0] + '测试集损失率')
+        legends.append(path.split('_')[0] + '(' + path.split('_')[1] + ')测试集损失率')
         data_list = open(path, 'r').readlines()
         x = []
         y = []
@@ -193,7 +193,7 @@ def draw_test_result(paths, save_path):
             y.append(float(data.split(' ')[1]) / 8833)
         color = [random.random(), random.random(), random.random()]
         marker = marker_list[index]
-        plt.plot(x, y, marker=marker, color=color, linewidth=0.75)
+        plt.plot(x, y, marker=marker, color=color, linewidth=0.75, markersize=3)
 
     plt.legend(legends)
     plt.title("损失率与迭代次数的关系")
@@ -404,8 +404,9 @@ if __name__ == "__main__":
     #                  'D:\\graduationproject\\ver3\\compare\\test_loss1.png')
     # find_common_result('D:\\graduationproject\\ver3\compare\\1110test\\error',
     #                    'D:\\graduationproject\\ver3\\similarity\\cbir\\error')
-    # train_log2csv('D:\\graduationproject\\ver3\\similarity\\1117\\train3.log',
-    #               'log_result.csv', 'triplet50_34')
-    # draw_single_param('train_iter', 'train_loss', ['resnet50_34', 'triplet50_34'], 'test.png')
-    draw_test_result(['resnet18_45_result.txt', 'shufflenetv2_45_result.txt'], 'test1.png')
+    # train_log2csv('D:\\graduationproject\\ver3\\compare\\shufflenetv2\\train45.log',
+    #               'log_result.csv', 'shufflenetv2_45')
+    draw_single_param('val_iter', 'val_acc', ['resnet50_45', 'resnet18_45', 'shufflenetv2_45'], 'valacc2.png')
+    # draw_test_result(['resnet18_45_result.txt', 'shufflenetv2_45_result.txt', 'resnet50_45_result.txt',
+    #                   'resnet18_34_result.txt', 'shufflenetv2_34_result.txt', 'resnet50_34_result.txt'], 'test1.png')
     # draw_multiple_param([['train_iter', 'train_acc'], ['val_iter', 'val_acc']], 'resnet50_34', 'test2.png')
