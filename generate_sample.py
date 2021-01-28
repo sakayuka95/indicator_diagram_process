@@ -17,6 +17,7 @@ import os.path as osp
 import random
 from shutil import move
 import itertools
+import common
 
 
 def generate_contrast_plus_train(img_path, base_path):
@@ -230,6 +231,22 @@ def delete_duplicate(path):
     print(str(cnt))
 
 
+def delete_duplicate_list(path,save_file):
+    file = open(path)
+    cnt = 0
+    all_sample = set()
+    with open(save_file, 'a') as fw:
+        for line in file:
+            content = line.split(' ')
+            temp1 = content[0] + '~' + content[1]
+            temp2 = content[1] + '~' + content[0]
+            if temp1 in all_sample and temp2 in all_sample:
+                print(line)
+                cnt += 1
+                continue
+            fw.write(line)
+
+
 def generate_similarity_list(folder_path, save_file):
     delete_duplicate(folder_path)
 
@@ -247,6 +264,42 @@ def generate_similarity_list(folder_path, save_file):
             cnt += 1
     print(cnt)
 
+
+def generate_similarity_by_folder(folder_path, save_file):
+    cnt = 0
+    save_list = osp.join(save_file, 'list.txt')
+    save_data = osp.join(save_file, 'data.txt')
+    with open(save_list, 'a') as fw:
+        # fw.write(data_path + '\n')
+        image_path_set = os.listdir(folder_path)
+        # plus
+        # minus Cn2/n = n(n-1)/2/n = (n-1)/2 dup->n/2
+        for label in image_path_set:
+            image_name_set = os.listdir(osp.join(folder_path, label))
+            num = len(image_name_set)
+            # plus
+            if num < 2:
+                continue
+            result = itertools.combinations(image_name_set, 2)
+            for pair in result:
+                context = pair[0].replace('.jpg','') + ' ' + pair[1].replace('.jpg','') + ' ' + '1' + '\n'
+                fw.write(context)
+            #minus
+            temp_set = list(image_path_set)
+            temp_set.remove(label)
+            for image in image_name_set:
+                minus_num = int(num / 2)
+                # print(str(minus_num))
+                while minus_num > 0:
+                    minus_label = temp_set[random.randint(0, len(temp_set) - 1)]
+                    minus_name_set = os.listdir(osp.join(folder_path, minus_label))
+                    minus_name = minus_name_set[random.randint(0, len(minus_name_set) - 1)]
+                    context = image.replace('.jpg','') + ' ' + minus_name.replace('.jpg','') + ' ' + '0' + '\n'
+                    fw.write(context)
+                    minus_num -= 1
+    common.count_lines(save_list)
+    delete_duplicate_list(save_list, save_data)
+    common.count_lines(save_data)
 
 def select_val_sample(train_path, val_path, base_num):
     image_path_set = os.listdir(train_path)
@@ -357,8 +410,10 @@ if __name__ == '__main__':
     # copy_sample('D:\\pythonProject\\image\\oilsimilarity\\afterda\\generate_from_image\\train',
     #             'D:\\pythonProject\\image\\oilsimilarity\\beforeda\\', 1000)
     # generate_random_contrast_test('D:\\pythonProject\\image\\data1214', 'D:\\pythonProject\\image\\test1214')
-    delete_duplicate('C:\\Users\\Shen Yujia\\Desktop\\temp\\plus14')
+    # delete_duplicate('C:\\Users\\Shen Yujia\\Desktop\\temp\\plus14')
     # split_similar_set('C:\\Users\\Shen Yujia\\Desktop\\temp\\plus147',
     #                   'C:\\Users\\Shen Yujia\\Desktop\\temp\\result')
     # generate_combination_contrast_test('D:\\pythonProject\\image\\oilcompare\\oildata1214\\origin\\3',
     #                                    'D:\pythonProject\image\oilcompare\oildata1214\c')
+    generate_similarity_by_folder('D:\\pythonProject\\image\\origin_images\\2020_12_23',
+                                  'D:\\pythonProject\\image\\origin_images')

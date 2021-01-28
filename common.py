@@ -3,6 +3,7 @@ created on 2020/12/1 11:10
 @author:yuka
 @note:statistics util
 """
+import shutil
 
 import numpy as np
 import pandas as pd
@@ -111,6 +112,20 @@ def merge_map(filepath1, filepath2, save_path):
     train.to_csv(save_path)
 
 
+def merge_folder(path, determination):
+    if not os.path.exists(determination):
+        os.makedirs(determination)
+
+    folders = os.listdir(path)
+    for folder in folders:
+        dir = path + '\\' + str(folder)
+        files = os.listdir(dir)
+        for file in files:
+            source = dir + '\\' + str(file)
+            deter = determination + str(file)
+            shutil.copyfile(source, deter)
+
+
 if __name__ == '__main__':
     # get_csv_max('D:\\pythonProject\\data\\csv')
     # get_excel_max('D:\\pythonProject\\data\\excel')
@@ -118,5 +133,7 @@ if __name__ == '__main__':
     #           'D:\\pythonProject\\image_data_map_image.csv',
     #           'D:\\pythonProject\\image_data_map.csv')
     # get_each_label_count('C:\\Users\\Shen Yujia\\Desktop\\temp\\result')
-    # get_total_num('C:\\Users\\Shen Yujia\\Desktop\\temp\\result')
-    count_lines('C:\\Users\\Shen Yujia\\Desktop\\models\\data.txt')
+    # get_total_num('D:\\pythonProject\\image\\origin_images\\2020_12_23')
+    count_lines('D:\pythonProject\image\oilsimilarity\data.txt')
+    # merge_folder('D:\\pythonProject\\image\\origin_images\\2020_12_23',
+    #              'D:\\pythonProject\\image\\origin_images\\merge1223')
