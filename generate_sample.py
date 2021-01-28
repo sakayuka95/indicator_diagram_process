@@ -16,6 +16,7 @@ import os
 import os.path as osp
 import random
 from shutil import move
+import itertools
 
 
 def generate_contrast_plus_train(img_path, base_path):
@@ -148,6 +149,29 @@ def generate_random_contrast_test(path, base_path):
             generate_origin.process_contrast(x_1, f_1, x_2, f_2, save_path)
 
 
+def generate_combination_contrast_test(path, base_path):
+    loadfile = load.LoadData('D:\\pythonProject\\image_data_map_image.csv')
+    pf, dict_index = loadfile.get_pixel_data()
+    image_path_set = os.listdir(path)
+    for label in image_path_set:
+        image_name_set = os.listdir(osp.join(path, label))
+        num = len(image_name_set)
+        if num < 2:
+            continue
+        result = itertools.combinations(image_name_set, 2)
+        for pair in result:
+            index_1 = dict_index.get(pair[0])
+            index_2 = dict_index.get(pair[1])
+            print('index_1: ' + str(index_1) + ', index_2: ' + str(index_2))
+            if index_1 is None or index_2 is None:
+                continue
+            x_1, f_1 = load.get_pixel_by_index(index_1, pf)
+            x_2, f_2 = load.get_pixel_by_index(index_2, pf)
+            pre1 = pair[0].replace('.png', '')
+            pre2 = pair[1].replace('.png', '')
+            save_path = osp.join(base_path, pre1 + '~' + pre2 + '.png')
+            generate_origin.process_contrast(x_1, f_1, x_2, f_2, save_path)
+
 
 def generate_single_contrast_by_name(image_name1, image_name2, base_path):
     loadfile = load.LoadData('D:\\pythonProject\\image_data_map.csv')
@@ -268,6 +292,54 @@ def copy_sample(train_path, val_path, base_num):
             num -= 1
 
 
+def split_similar_set(path, save_path):
+    loadfile = load.LoadData('D:\\pythonProject\\image_data_map_image.csv')
+    pf, dict_index = loadfile.get_pixel_data()
+    similar = []
+    image_set = os.listdir(path)
+    for image in image_set:
+        temp_set = set()
+        temp = image.split('~')
+        image1 = temp[0].replace('.png', '')
+        image2 = temp[1].replace('.png', '')
+        index_1 = contains_image(similar, image1)
+        index_2 = contains_image(similar, image2)
+        if index_1 == -1 and index_2 == -1:
+            temp_set.add(image1)
+            temp_set.add(image2)
+            similar.append(temp_set)
+        elif index_1 != -1 and index_2 != -1:
+            if index_1 == index_2:
+                continue
+            else:
+                similar[index_1].union(similar[index_1], similar[index_2])
+                similar.remove(similar[index_2])
+        elif index_1 != -1 and index_2 == -1:
+            similar[index_1].add(image2)
+        else:
+            similar[index_2].add(image1)
+
+    length = len(similar)
+    for i in range(length):
+        current_path = osp.join(save_path, str(i))
+        os.mkdir(current_path)
+        current_set = similar[i]
+        for img in current_set:
+            index = dict_index.get(img)
+            print('index: ' + str(index))
+            if index is None:
+                continue
+            x, f = load.get_pixel_by_index(index, pf)
+            generate_origin.process(x, f, osp.join(current_path, img))
+
+
+def contains_image(set_list, item):
+    for i, cur_set in enumerate(set_list):
+        if item in cur_set:
+            return i
+    return -1
+
+
 if __name__ == '__main__':
     # generate_contrast_plus_train('D:\\pythonProject\\image\\oilsimilarity\\beforeda\\imagemap',
     #                              'D:\\pythonProject\\image\\oilcompare\\generate_from_image\\plus')
@@ -285,4 +357,8 @@ if __name__ == '__main__':
     # copy_sample('D:\\pythonProject\\image\\oilsimilarity\\afterda\\generate_from_image\\train',
     #             'D:\\pythonProject\\image\\oilsimilarity\\beforeda\\', 1000)
     # generate_random_contrast_test('D:\\pythonProject\\image\\data1214', 'D:\\pythonProject\\image\\test1214')
-    delete_duplicate('D:\\pythonProject\\image\\test1214')
+    delete_duplicate('C:\\Users\\Shen Yujia\\Desktop\\temp\\plus14')
+    # split_similar_set('C:\\Users\\Shen Yujia\\Desktop\\temp\\plus147',
+    #                   'C:\\Users\\Shen Yujia\\Desktop\\temp\\result')
+    # generate_combination_contrast_test('D:\\pythonProject\\image\\oilcompare\\oildata1214\\origin\\3',
+    #                                    'D:\pythonProject\image\oilcompare\oildata1214\c')

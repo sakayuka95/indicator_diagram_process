@@ -75,8 +75,8 @@ def generate_origin(filepath, base_path):
         if fileName.find('.xlsx') != -1:
             file.generate_excel(base_path)
         elif fileName.find('.csv') != -1:
-            file.generate_csv(base_path)
-            # file.generate_csv_with_axis(base_path)
+            # file.generate_csv(base_path)
+            file.generate_csv_with_axis(base_path)
         elif fileName.find('.png') != -1:
             file.generate_image(base_path)
             # file.generate_csv_with_axis(base_path)
@@ -235,7 +235,8 @@ def process_with_axis(x, f, save_path, max_f):
     plt.rcParams['savefig.dpi'] = 100
     plt.ylim(min(f) - 20, max(f) + 20)
     # plt.ylim(0, 256)
-    plt.plot(x, f, '-', color='#000000')
+    plt.plot(x, f, '-', color='#000000',linewidth=0.5)
+    plt.axis('off')
     plt.savefig(save_path, bbox_inches='tight')
     plt.show()
 
@@ -440,7 +441,7 @@ class Generate:
             f = data[:, 1]
             idx += 200
             cnt += 1
-            if cnt == 3:
+            if cnt == 579:
                 if util.zero_data(x, f):
                     exception_zero += 1
                     continue
@@ -627,10 +628,10 @@ def generate_i():
 
 
 if __name__ == '__main__':
-    # generate_origin('D:\\pythonProject\\testt\\',
-    #                 'D:\\pythonProject\\testt\\')
-    generate_origin_map('D:\pythonProject\image\data1214',
-                        'D:\\pythonProject\\image_data_map_image.csv')
+    generate_origin('D:\pythonProject\data1',
+                    'D:\graduationproject')
+    # generate_origin_map('D:\pythonProject\image\data1214',
+    #                     'D:\\pythonProject\\image_data_map_image.csv')
     # generate_enhance('D:\\pythonProject\\image\\images')
     # data_augmentation_from_image('D:\\graduationproject\DataPreparation\\1119test\\data', 4500,
     #                              'D:\\pythonProject\\image\\origin_images\\generate')

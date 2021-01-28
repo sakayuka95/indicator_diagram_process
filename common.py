@@ -95,7 +95,8 @@ def get_each_label_count(path):
     for label in image_path_set:
         image_name_set = os.listdir(path + '\\' + label)
         label_num = len(image_name_set)
-        print(label + ' has ' + str(label_num) + ' images ')
+        if label_num >= 2 :
+            print(label + ' has ' + str(label_num) + ' images ')
 
 
 def count_lines(path):
@@ -111,8 +112,11 @@ def merge_map(filepath1, filepath2, save_path):
 
 
 if __name__ == '__main__':
-    get_csv_max('D:\\pythonProject\\data\\csv')
-    get_excel_max('D:\\pythonProject\\data\\excel')
-    merge_map('D:\\pythonProject\\image_data_map_data.csv',
-              'D:\\pythonProject\\image_data_map_image.csv',
-              'D:\\pythonProject\\image_data_map.csv')
+    # get_csv_max('D:\\pythonProject\\data\\csv')
+    # get_excel_max('D:\\pythonProject\\data\\excel')
+    # merge_map('D:\\pythonProject\\image_data_map_data.csv',
+    #           'D:\\pythonProject\\image_data_map_image.csv',
+    #           'D:\\pythonProject\\image_data_map.csv')
+    # get_each_label_count('C:\\Users\\Shen Yujia\\Desktop\\temp\\result')
+    # get_total_num('C:\\Users\\Shen Yujia\\Desktop\\temp\\result')
+    count_lines('C:\\Users\\Shen Yujia\\Desktop\\models\\data.txt')

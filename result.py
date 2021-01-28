@@ -28,6 +28,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import csv
 import random
+import common
 
 ch = {
     'iter': '迭代次数',
@@ -355,41 +356,74 @@ def modify_sample(error_path, path):
 
 
 def find_common_result(error_path_2, error_path_3):
-    # dict_data = dict()
-    # file = open('D:\\graduationproject\\ver3\\similarity\\cbir\\error.txt')
-    # for line in file:
-    #     content = line.split(' ')
-    #     image_name1 = content[0]
-    #     image_name2 = content[1]
-    #     label = content[2].replace('\n', '')
-    #     key = image_name1 + '~' + image_name2
-    #     value = label.replace('.png', '')
-    #     dict_data[key] = value
-    # file.close()
-
-    image_all_set = os.listdir(error_path_2)
-    dict_error = dict()
-    for image in image_all_set:
-        content = image.split('~')
+    common.count_lines(error_path_2)
+    # FD-1-3499~FD-1-13062~189tm.png
+    dict_data = dict()
+    file = open(error_path_2)
+    for line in file:
+        content = line.split('~')
         image_name1 = content[0]
         image_name2 = content[1]
         label = content[2].replace('\n', '')
         key = image_name1 + '~' + image_name2
         value = label.replace('.png', '')
-        dict_error[key] = value
+        dict_data[key] = value
+    file.close()
 
+    common.count_lines(error_path_3)
+    # FD-1-12922 FD-1-9274 1:0.9679469
     cnt = 0
-    image_set = os.listdir(error_path_3)
-    for image in image_set:
-        content = image.split('~')
+    file = open(error_path_3)
+    for line in file:
+        content = line.split(' ')
         image_name1 = content[0]
         image_name2 = content[1]
-        label = content[2].replace('\n', '')
+        label = content[2].split(':')[0].replace('\n', '')
         key = image_name1 + '~' + image_name2
-        error_label = dict_error.get(key, None)
+        error_label = dict_data.get(key, None)
         if error_label is not None:
             cnt += 1
             print(key)
+    file.close()
+    print(cnt)
+
+    # image_all_set = os.listdir(error_path_2)
+    # dict_error = dict()
+    # for image in image_all_set:
+    #     content = image.split('~')
+    #     image_name1 = content[0]
+    #     image_name2 = content[1]
+    #     label = content[2].replace('\n', '')
+    #     key = image_name1 + '~' + image_name2
+    #     value = label.replace('.png', '')
+    #     dict_error[key] = value
+    #
+    # cnt = 0
+    # image_set = os.listdir(error_path_3)
+    # for image in image_set:
+    #     content = image.split('~')
+    #     image_name1 = content[0]
+    #     image_name2 = content[1]
+    #     label = content[2].replace('\n', '')
+    #     key = image_name1 + '~' + image_name2
+    #     error_label = dict_error.get(key, None)
+    #     if error_label is not None:
+    #         cnt += 1
+    #         print(key)
+    # print(cnt)
+
+
+def confirm_data(path1, path2):
+    cnt = 0
+    image_set1 = os.listdir(path1)
+    image_set2 = os.listdir(path2)
+    for i in image_set1:
+        if i not in image_set2:
+            cnt += 1
+            print(i)
+        else:
+            os.remove(osp.join(path1, i))
+
     print(cnt)
 
 
@@ -402,11 +436,13 @@ if __name__ == "__main__":
     #  'D:\\pythonProject\\image2\\SimilarityDetection\\all')
     # draw_test_result('D:\\graduationproject\\ver3\\compare\\test_analyse.xlsx',
     #                  'D:\\graduationproject\\ver3\\compare\\test_loss1.png')
-    # find_common_result('D:\\graduationproject\\ver3\compare\\1110test\\error',
-    #                    'D:\\graduationproject\\ver3\\similarity\\cbir\\error')
-    # train_log2csv('D:\\graduationproject\\ver3\\compare\\shufflenetv2\\train45.log',
-    #               'log_result.csv', 'shufflenetv2_45')
-    draw_single_param('val_iter', 'val_acc', ['resnet50_45', 'resnet18_45', 'shufflenetv2_45'], 'valacc2.png')
+    find_common_result('C:\\Users\Shen Yujia\Desktop\models\\errorssv2_34_58000.txt',
+                       'C:\\Users\Shen Yujia\Desktop\models\\error93.txt')
+    # train_log2csv('C:\\Users\\Shen Yujia\\Desktop\\models\\trainmobiletv234.log',
+    #               'log_result.csv', 'mobilenettv2_34')
+    # draw_single_param('train_iter', 'train_loss', ['mobilenettv2_34'], 'train34.png')
     # draw_test_result(['resnet18_45_result.txt', 'shufflenetv2_45_result.txt', 'resnet50_45_result.txt',
     #                   'resnet18_34_result.txt', 'shufflenetv2_34_result.txt', 'resnet50_34_result.txt'], 'test1.png')
-    # draw_multiple_param([['train_iter', 'train_acc'], ['val_iter', 'val_acc']], 'resnet50_34', 'test2.png')
+    # draw_multiple_param([['train_iter', 'train_loss'], ['val_iter', 'val_loss']], 'mobilenettv2_34', 'test34.png')
+    # delete_error('C:\\Users\\Shen Yujia\\Desktop\\0', 'C:\\Users\\Shen Yujia\\Desktop\\temp\\已标注未训练\\7')
+    # confirm_data('C:\\Users\\Shen Yujia\\Desktop\\0', 'C:\\Users\\Shen Yujia\\Desktop\\temp\\已标注未训练\\error7')
